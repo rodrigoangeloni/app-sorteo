@@ -108,7 +108,7 @@ Sigue estos pasos para ejecutar el proyecto en tu entorno local:
 
 1.  **Asegúrate de tener Docker instalado y en ejecución.**
 2.  **Construye la imagen de Docker:**
-    Desde la raíz del proyecto (`c:\Users\profesor\practicas\app-sorteo`), ejecuta:
+    Desde la raíz del proyecto (`\app-sorteo`), ejecuta:
     ```powershell
     docker build -t app-sorteo-react .
     ```

@@ -116,31 +116,55 @@ export const GiveawayProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       if (!giveaway) throw new Error('Giveaway not found');
       
       // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Reduced delay
       
-      // Generate mock participants based on the platform
-      const mockParticipants: Participant[] = Array.from({ length: 50 }, (_, i) => ({
-        id: uuidv4(),
-        username: `user_${giveaway.platform}_${i + 1}`,
-        platform: giveaway.platform,
-        comment: i % 3 === 0 ? `Great giveaway! I'd love to win! #${i}` : undefined,
-        followsAccount: Math.random() > 0.2,
-        likedPost: Math.random() > 0.3,
-        isValid: true,
-        timestamp: new Date(Date.now() - Math.floor(Math.random() * 1000000)),
-        profilePicture: `https://i.pravatar.cc/150?u=${i}`
-      }));
+      // TODO: Implement actual fetching of participants from the social media platform API
+      // For example, for Instagram, you would use the Instagram Graph API.
+      // This would involve:
+      // 1. Authenticating with the API.
+      // 2. Making a request to get comments/participants from the postUrl.
+      // 3. Parsing the response and mapping it to the Participant[] structure.
+      // 4. Handling pagination if there are many participants.
+      // 5. Error handling for API errors, private accounts, etc.
+
+      console.log(`Attempting to load participants for ${giveaway.platform} post: ${postUrl}`);
       
-      const updatedGiveaway = {
+      const realParticipants: Participant[] = []; // Placeholder for actual participants
+
+      // Example of how you might structure a call (pseudo-code):
+      // if (giveaway.platform === 'Instagram') {
+      //   try {
+      //     const response = await fetchInstagramComments(postUrl, authToken); // You'd need to implement this
+      //     realParticipants = response.map(comment => ({
+      //       id: uuidv4(),
+      //       username: comment.user.username,
+      //       platform: 'Instagram',
+      //       comment: comment.text,
+      //       // ... other fields based on API response
+      //       isValid: true, // Initial validation state
+      //       timestamp: new Date(comment.timestamp),
+      //       profilePicture: comment.user.profile_picture_url
+      //     }));
+      //   } catch (apiError) {
+      //     console.error('Failed to fetch from Instagram API:', apiError);
+      //     // Potentially set an error state to show in the UI
+      //     throw apiError; // or handle more gracefully
+      //   }
+      // } else if (giveaway.platform === 'YouTube') {
+      //   // Similar logic for YouTube API
+      // }
+
+      const updatedGiveaway: Giveaway = {
         ...giveaway,
-        participants: mockParticipants,
-        status: 'active'
+        participants: realParticipants, // Use the (currently empty) realParticipants array
+        status: realParticipants.length > 0 ? 'active' : 'draft' // Correctly typed status
       };
       
       saveGiveaway(updatedGiveaway);
       setCurrentGiveaway(updatedGiveaway);
     } catch (error) {
       console.error('Error loading participants:', error);
+      // Consider setting an error state here to be displayed in the UI
     } finally {
       setIsLoading(false);
     }

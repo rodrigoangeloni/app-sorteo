@@ -11,6 +11,7 @@
 *   💾 **Persistencia de Datos:** Los sorteos se guardan en el almacenamiento local de tu navegador.
 *   🇪🇸 **Interfaz en Español:** Toda la aplicación está traducida al español.
 *   📱 **Diseño Responsivo:** Adaptable a diferentes tamaños de pantalla gracias a Tailwind CSS.
+*   🐳 **Soporte Docker:** Configuración para construir y ejecutar la aplicación en un contenedor Docker con Nginx.
 
 ## 🛠️ Tecnologías Utilizadas
 
@@ -21,6 +22,8 @@
 *   **React Router DOM:** Para la gestión de rutas en la aplicación.
 *   **Lucide Icons:** Iconos SVG ligeros y personalizables.
 *   **Canvas Confetti:** Para celebrar la selección de ganadores. 🎉
+*   **Docker:** Para la contenerización de la aplicación.
+*   **Nginx:** Para servir la aplicación en producción dentro del contenedor Docker.
 
 ## 📁 Estructura del Proyecto
 
@@ -29,7 +32,7 @@ El proyecto sigue una estructura modular para facilitar el mantenimiento y la es
 ```
 app-sorteo/
 ├── public/               # Archivos estáticos
-├── src/
+├── src/                  # Código fuente de la aplicación React
 │   ├── assets/           # Imágenes, fuentes, etc. (si las hubiera)
 │   ├── components/       # Componentes reutilizables de la UI
 │   │   ├── common/       # Componentes comunes (Header, Footer)
@@ -44,14 +47,19 @@ app-sorteo/
 │   ├── App.tsx           # Componente principal de la aplicación y rutas
 │   ├── main.tsx          # Punto de entrada de la aplicación
 │   └── index.css         # Estilos globales (principalmente Tailwind)
-├── .eslintrc.cjs         # Configuración de ESLint
+├── .dockerignore         # Archivos ignorados por Docker al construir la imagen
+├── .eslintrc.cjs         # Configuración de ESLint (Reemplazado por eslint.config.js en versiones recientes)
 ├── .gitignore            # Archivos ignorados por Git
+├── Dockerfile            # Instrucciones para construir la imagen Docker
+├── eslint.config.js      # Nueva configuración de ESLint (si aplica)
 ├── index.html            # Plantilla HTML principal
+├── nginx.conf            # Configuración de Nginx para servir la SPA en Docker
 ├── package.json          # Dependencias y scripts del proyecto
 ├── postcss.config.js     # Configuración de PostCSS (para Tailwind)
 ├── tailwind.config.js    # Configuración de Tailwind CSS
 ├── tsconfig.json         # Configuración principal de TypeScript
-├── tsconfig.node.json    # Configuración de TypeScript para Node
+├── tsconfig.app.json     # Configuración de TypeScript específica para la aplicación
+├── tsconfig.node.json    # Configuración de TypeScript para el entorno Node.js (ej. Vite config)
 └── vite.config.ts        # Configuración de Vite
 ```
 
@@ -63,6 +71,7 @@ Sigue estos pasos para ejecutar el proyecto en tu entorno local:
 
 *   Node.js (versión 18.x o superior recomendada)
 *   npm (generalmente viene con Node.js) o yarn
+*   Docker (si deseas ejecutar la aplicación en un contenedor)
 
 ### Instalación
 
@@ -83,15 +92,31 @@ Sigue estos pasos para ejecutar el proyecto en tu entorno local:
 
 ### Ejecutar la Aplicación
 
+#### Opción 1: Desarrollo Local con Vite
+
 1.  **Inicia el servidor de desarrollo:**
-    ```bash
+    ```powershell
     npm run dev
     ```
     o si usas yarn:
-    ```bash
+    ```powershell
     yarn dev
     ```
 2.  Abre tu navegador y ve a `http://localhost:5173` (o la URL que indique Vite en tu terminal).
+
+#### Opción 2: Ejecutar con Docker
+
+1.  **Asegúrate de tener Docker instalado y en ejecución.**
+2.  **Construye la imagen de Docker:**
+    Desde la raíz del proyecto (`c:\Users\profesor\practicas\app-sorteo`), ejecuta:
+    ```powershell
+    docker build -t app-sorteo-react .
+    ```
+3.  **Ejecuta el contenedor Docker:**
+    ```powershell
+    docker run -d -p 8080:80 --name mi-app-sorteo app-sorteo-react
+    ```
+4.  Abre tu navegador y ve a `http://localhost:8080`.
 
 ## 📜 Scripts Disponibles
 
@@ -101,6 +126,17 @@ En el archivo `package.json`, encontrarás varios scripts útiles:
 *   `npm run build`: Compila la aplicación para producción en la carpeta `dist/`.
 *   `npm run lint`: Ejecuta ESLint para analizar el código en busca de errores y problemas de estilo.
 *   `npm run preview`: Sirve la build de producción localmente para previsualizarla.
+
+## 🐳 Comandos Útiles de Docker
+
+*   **Ver contenedores en ejecución:** `docker ps`
+*   **Ver todos los contenedores:** `docker ps -a`
+*   **Ver logs de un contenedor:** `docker logs mi-app-sorteo` (o `docker logs -f mi-app-sorteo` para seguir en tiempo real)
+*   **Detener un contenedor:** `docker stop mi-app-sorteo`
+*   **Iniciar un contenedor detenido:** `docker start mi-app-sorteo`
+*   **Eliminar un contenedor (debe estar detenido):** `docker rm mi-app-sorteo`
+*   **Ver imágenes Docker locales:** `docker images`
+*   **Eliminar una imagen Docker:** `docker rmi app-sorteo-react` (asegúrate que ningún contenedor la use)
 
 ## 🤝 Contribuciones
 

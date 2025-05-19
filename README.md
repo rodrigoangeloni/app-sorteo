@@ -5,7 +5,7 @@
 ## ✨ Características Principales
 
 *   📝 **Creación de Sorteos:** Define el nombre, descripción y premio de tus sorteos.
-*   👥 **Gestión de Participantes:** Carga participantes desde archivos CSV o pégalos directamente. Filtra y busca participantes fácilmente.
+*   👥 **Gestión de Participantes:** Carga participantes desde archivos CSV, pégalos directamente, o configura la integración para cargarlos desde comentarios de Instagram (requiere configuración de API).
 *   ⚙️ **Configuración de Reglas:** Establece el número de ganadores y suplentes.
 *   🏆 **Selección de Ganadores:** Realiza el sorteo y obtén los ganadores de forma aleatoria y transparente. ¡Con confeti! 🎊
 *   💾 **Persistencia de Datos:** Los sorteos se guardan en el almacenamiento local de tu navegador.
@@ -24,6 +24,57 @@
 *   **Canvas Confetti:** Para celebrar la selección de ganadores. 🎉
 *   **Docker:** Para la contenerización de la aplicación.
 *   **Nginx:** Para servir la aplicación en producción dentro del contenedor Docker.
+
+## <0xF0><0x9F><0x93><0xB1> Integración con Instagram (Opcional)
+
+Esta aplicación está preparada para integrarse con la API de Instagram y cargar participantes directamente desde los comentarios de una publicación. Para habilitar esta funcionalidad, sigue estos pasos:
+
+### 1. Configuración en Facebook for Developers
+
+Necesitarás una cuenta de desarrollador de Facebook y configurar una aplicación:
+
+1.  **Crea una Aplicación:** Ve a [Facebook for Developers](https://developers.facebook.com/) y crea una nueva aplicación.
+2.  **Añade el producto "Instagram Graph API":** Configura tu aplicación para usar la Instagram Graph API.
+3.  **Obtén tu `App ID`:** Lo encontrarás en el panel de control de tu aplicación.
+4.  **Configura los Permisos (Scopes):** Asegúrate de que tu aplicación solicita los permisos necesarios. Para leer comentarios y perfiles de usuario, generalmente necesitarás:
+    *   `instagram_basic`
+    *   `instagram_manage_comments`
+    *   `instagram_graph_user_profile`
+    *   Si trabajas con una cuenta de Instagram de empresa/creador conectada a una página de Facebook, podrías necesitar también `pages_read_engagement`.
+5.  **Genera un Token de Acceso de Usuario (User Access Token) para Pruebas:**
+    *   Utiliza el [Explorador de la API Graph](https://developers.facebook.com/tools/explorer/) dentro del portal de desarrolladores.
+    *   Selecciona tu aplicación.
+    *   Haz clic en "Obtener token" -> "Obtener token de acceso de usuario".
+    *   Selecciona los permisos mencionados arriba.
+    *   Copia el token de acceso generado. Este token te permitirá hacer llamadas a la API en nombre del usuario autenticado (para desarrollo, este serías tú mismo con tu cuenta de Instagram de prueba).
+    *   **Nota:** Estos tokens tienen una duración limitada. Para producción, necesitarías implementar un flujo OAuth 2.0 completo.
+
+### 2. Configuración de Variables de Entorno
+
+1.  **Crea un archivo `.env`:** En la raíz del proyecto, copia el archivo `.env.example` y renómbralo a `.env`.
+    ```powershell
+    copy .env.example .env
+    ```
+2.  **Añade tus credenciales al archivo `.env`:**
+    ```env
+    VITE_INSTAGRAM_APP_ID=TU_APP_ID_DE_INSTAGRAM_OBTENIDO_EN_EL_PASO_1
+    VITE_INSTAGRAM_USER_ACCESS_TOKEN=TU_TOKEN_DE_ACCESO_DE_USUARIO_GENERADO_EN_EL_PASO_1
+    # VITE_REDIRECT_URI=TU_URI_DE_REDIRECCION_CONFIGURADA_EN_FACEBOOK_DEVELOPERS (necesario para un flujo OAuth completo)
+    ```
+    **Importante:** El archivo `.env` está incluido en `.gitignore`, por lo que tus credenciales no se subirán a tu repositorio Git.
+
+### 3. Implementación del Código
+
+El archivo `src/context/GiveawayContext.tsx` contiene la lógica para cargar participantes. La función `loadParticipants` tiene secciones comentadas y pseudocódigo que indican dónde debes:
+
+*   Utilizar el `VITE_INSTAGRAM_USER_ACCESS_TOKEN`.
+*   Extraer el `shortcode` o `media_id` de la URL de la publicación de Instagram.
+*   Realizar las llamadas a la API de Instagram Graph para obtener los comentarios.
+*   Mapear los datos de los comentarios al formato `Participant[]` de la aplicación.
+
+Deberás descomentar y completar esta lógica siguiendo la documentación de la [Instagram Graph API](https://developers.facebook.com/docs/instagram-api).
+
+**Nota sobre la seguridad del Token:** Para una aplicación en producción, el `App Secret` y la gestión de tokens de acceso de larga duración deben manejarse en un servidor backend, no directamente en el frontend, para mayor seguridad. La configuración actual con el token de acceso en `.env` es adecuada para desarrollo y pruebas locales.
 
 ## 📁 Estructura del Proyecto
 

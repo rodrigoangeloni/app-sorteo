@@ -126,25 +126,80 @@ export const GiveawayProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       // 3. Parsing the response and mapping it to the Participant[] structure.
       // 4. Handling pagination if there are many participants.
       // 5. Error handling for API errors, private accounts, etc.
+      // 6. Securely manage API keys and tokens using environment variables.
 
       console.log(`Attempting to load participants for ${giveaway.platform} post: ${postUrl}`);
       
+      // Access environment variables (ensure your build process handles .env files, e.g., Vite does this by default for REACT_APP_ variables)
+      const INSTAGRAM_APP_ID = import.meta.env.VITE_INSTAGRAM_APP_ID;
+      // const INSTAGRAM_APP_SECRET = import.meta.env.VITE_INSTAGRAM_APP_SECRET; // Secret should not be in frontend
+      const REDIRECT_URI = import.meta.env.VITE_REDIRECT_URI;
+      // const USER_ACCESS_TOKEN = localStorage.getItem('instagram_access_token'); // Example: get token stored after OAuth
+
+      // For a real implementation, you would initiate an OAuth flow if no token is present,
+      // or use a stored token to make API calls.
+      // The APP_SECRET should NEVER be exposed in the frontend. It's used on a backend for token exchange or server-to-server calls.
+
+      // if (!USER_ACCESS_TOKEN) {
+      //   // Initiate OAuth flow - redirect user to Instagram/Facebook for authorization
+      //   // Example: window.location.href = `https://api.instagram.com/oauth/authorize?client_id=${INSTAGRAM_APP_ID}&redirect_uri=${REDIRECT_URI}&scope=user_profile,user_media,instagram_graph_user_profile,instagram_graph_user_media,instagram_manage_comments&response_type=code`;
+      //   // After authorization, Instagram will redirect to your REDIRECT_URI with a code.
+      //   // You'll then need to exchange this code for an access token (ideally on a backend).
+      //   console.warn("User access token not found. Please implement OAuth flow.");
+      //   setIsLoading(false);
+      //   return;
+      // }
+
       const realParticipants: Participant[] = []; // Placeholder for actual participants
 
       // Example of how you might structure a call (pseudo-code):
-      // if (giveaway.platform === 'Instagram') {
+      // if (giveaway.platform === 'Instagram' && USER_ACCESS_TOKEN) {
       //   try {
-      //     const response = await fetchInstagramComments(postUrl, authToken); // You'd need to implement this
-      //     realParticipants = response.map(comment => ({
-      //       id: uuidv4(),
-      //       username: comment.user.username,
-      //       platform: 'Instagram',
-      //       comment: comment.text,
-      //       // ... other fields based on API response
-      //       isValid: true, // Initial validation state
-      //       timestamp: new Date(comment.timestamp),
-      //       profilePicture: comment.user.profile_picture_url
-      //     }));
+            // Helper function to extract media ID from URL (simplified)
+            // const getMediaIdFromUrl = (url: string): string | null => {
+            //   const match = url.match(/\/p\/([^\/]+)/);
+            //   return match ? match[1] : null;
+            // };
+            // const shortcode = getMediaIdFromUrl(postUrl);
+
+            // if (shortcode) {
+                // First, you might need to get the full media ID from the shortcode if the API requires it.
+                // This often involves an oEmbed call or another endpoint.
+                // Example: const oembedResponse = await fetch(`https://graph.facebook.com/v19.0/instagram_oembed?url=${postUrl}&access_token=${USER_ACCESS_TOKEN}`);
+                // const oembedData = await oembedResponse.json();
+                // const mediaId = oembedData.media_id; 
+                // (Note: oEmbed might need a different type of token or App Token for some uses)
+
+                // Ensure you have the correct media_id for the post.
+                // The postUrl itself might not be the ID the API expects for comments.
+                // Let's assume you have a function getInstagramMediaId(postUrl, USER_ACCESS_TOKEN) that returns the correct ID.
+                // const mediaId = await getInstagramMediaId(postUrl, USER_ACCESS_TOKEN);
+
+                // if (mediaId) {
+                    // const fields = "id,text,timestamp,username,user{id,username,profile_picture_url}";
+                    // const commentsResponse = await fetch(`https://graph.facebook.com/v19.0/${mediaId}/comments?fields=${fields}&access_token=${USER_ACCESS_TOKEN}`);
+                    // const commentsData = await commentsResponse.json();
+
+                    // if (commentsData.data) {
+                    //   realParticipants = commentsData.data.map((comment: any) => ({
+                    //     id: comment.id || uuidv4(),
+                    //     username: comment.username || (comment.user ? comment.user.username : 'UnknownUser'),
+                    //     platform: 'Instagram',
+                    //     comment: comment.text,
+                    //     isValid: true, 
+                    //     timestamp: new Date(comment.timestamp),
+                    //     profilePicture: comment.user ? comment.user.profile_picture_url : undefined,
+                    //     // The API for comments doesn't directly tell you if they follow or liked.
+                    //     // This would require more complex checks or manual verification.
+                    //     followsAccount: undefined, // Needs separate check
+                    //     likedPost: undefined, // Needs separate check
+                    //   }));
+                    // } else {
+                    //   console.error("Failed to fetch comments or no comments found", commentsData.error);
+                    // }
+                // } else {
+                //    console.error("Could not retrieve media ID for the post URL.");
+                // }
       //   } catch (apiError) {
       //     console.error('Failed to fetch from Instagram API:', apiError);
       //     // Potentially set an error state to show in the UI
